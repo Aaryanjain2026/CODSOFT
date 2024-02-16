@@ -1,0 +1,99 @@
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+import java.util.Timer;
+import java.util.TimerTask;
+
+class QuizQuestion {
+    String question;
+    List<String> options;
+    int correctOption;
+
+    public QuizQuestion(String question, List<String> options, int correctOption) {
+        this.question = question;
+        this.options = options;
+        this.correctOption = correctOption;
+    }
+}
+
+public class QuizApp {
+    private List<QuizQuestion> questions;
+    private int userScore;
+    private int currentQuestionIndex;
+    private Timer timer;
+
+    public QuizApp(List<QuizQuestion> questions) {
+        this.questions = questions;
+        this.userScore = 0;
+        this.currentQuestionIndex = 0;
+        this.timer = new Timer();
+    }
+
+    public void startQuiz() {
+        displayNextQuestion();
+    }
+
+    private void displayNextQuestion() {
+        if (currentQuestionIndex < questions.size()) {
+            QuizQuestion currentQuestion = questions.get(currentQuestionIndex);
+            System.out.println(currentQuestion.question);
+            for (int i = 0; i < currentQuestion.options.size(); i++) {
+                System.out.println((i + 1) + ". " + currentQuestion.options.get(i));
+            }
+
+            startTimer();
+
+            Scanner scanner = new Scanner(System.in);
+            int userAnswer = scanner.nextInt();
+
+            stopTimer();
+
+            if (userAnswer == currentQuestion.correctOption) {
+                System.out.println("Correct!\n");
+                userScore++;
+            } else {
+                System.out.println("Incorrect!\n");
+            }
+
+            currentQuestionIndex++;
+            displayNextQuestion();
+        } else {
+            endQuiz();
+        }
+    }
+
+    private void startTimer() {
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                System.out.println("Time's up! Moving to the next question.\n");
+                currentQuestionIndex++;
+                displayNextQuestion();
+            }
+        }, 15000); // 15 seconds timer
+    }
+
+    private void stopTimer() {
+        timer.cancel();
+        timer.purge();
+        timer = new Timer();
+    }
+
+    private void endQuiz() {
+        System.out.println("Quiz completed! Your final score is: " + userScore + " out of " + questions.size());
+    }
+
+    public static void main(String[] args) {
+        // Create quiz questions
+        List<QuizQuestion> quizQuestions = new ArrayList<>();
+        quizQuestions.add(new QuizQuestion("What city is known as The Eternal City ?", List.of("Berlin", "Paris", "Madrid", "Rome"), 4));
+        quizQuestions.add(new QuizQuestion("How many bones do we have in an ear ?", List.of("2", "3", "0", "1"), 2));
+        quizQuestions.add(new QuizQuestion("What phone company produced the 3310 ??", List.of("Nokia", "Samsung", "blue berry", "Iphone"), 1));
+
+        // Create and start the quiz
+        QuizApp quizApp = new QuizApp(quizQuestions);
+        quizApp.startQuiz();
+
+        System.out.println("Thank you for attempting quiz: " );
+    }
+}
